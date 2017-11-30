@@ -167,8 +167,19 @@ deceleration = 1000*6
 while(True):
     pitch = float(input('pitch: '))
     roll = float(input('roll: '))
-    polyModel.getLeftpos(pitch, roll)
-    polyModel.getRightpos(pitch, roll)
+    leftpos = polyModel.getLeftpos(pitch, roll)
+    rightpos = polyModel.getRightpos(pitch, roll)
+    if(rightpos > 120):
+        rightpos = 120
+    if(rightpos < 1):
+        rightpos = 1
+    if (leftpos > 120):
+        leftpos = 120
+    if (leftpos < 1):
+        leftpos = 1
+
+    setPosAcc(motornodeLeft,acceleration, deceleration, leftpos)
+    setPosAcc(motornodeLeft,acceleration, deceleration, rightpos)
 
 
 # shutdown
