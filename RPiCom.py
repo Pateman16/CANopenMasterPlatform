@@ -4,11 +4,10 @@ class RpiPitchRoll(object):
 
 
 
-    def __init__(self, ipAdress, port, clientIp):
+    def __init__(self, serverIp, port):
         #here we define the udp ip address as well as the port number that we have.
-        self.ipAdress = ipAdress
         self.port = port
-        self.clientIp = clientIp
+        self.clientIp = serverIp
         #declare our serverSocket upon which
         #we will be listening for UDP messages
         self.serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -33,3 +32,6 @@ class RpiPitchRoll(object):
         except:
             print("didnt send")
             return 0
+
+    def closeSocket(self):
+        self.serverSock.close()
