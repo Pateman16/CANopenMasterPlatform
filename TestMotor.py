@@ -1,9 +1,5 @@
 import canopen
 import time
-from RPiCom import RpiPitchRoll
-from motorModelClass import MotorPositionModel
-import numpy as np
-import pickle
 
 # Start with creating a network representing one CAN bus
 network = canopen.Network()
@@ -92,54 +88,6 @@ def setPosAcc(motornode, acc, dec, pos):
     print(posit)
     motornode.sdo['Controlword'].raw = 0x3F
 
-#calibrateVal is the value that determines how many samples is made. degree/sample = 120 / calibrateVal
-def calibratePlatform(calibrateVal):
-    # Here we define the UDP IP address as well as the port number that we have
-    SERVER_IP_ADDRESS = "169.254.209.246"  # Ip address of the raspberry server
-    SERVER_PORT_NO = 8888  # Port from the raspberry server
-
-    rPiCom = RpiPitchRoll(SERVER_IP_ADDRESS, SERVER_PORT_NO)
-    dataSet = np.empty(shape=[0, 4])
-    for i in range(calibrateVal):
-        degreeLeft = i * (120 / calibrateVal)
-        setPosAcc(motornodeLeft, 1000, 1000, degreeLeft)
-        for j in range(calibrateVal):
-            degreeRight = 120 - j * (120 / calibrateVal)
-            setPosAcc(motornodeRight, 1000, 1000, degreeRight)
-            #read statusword bit 10 for position reached? for both motors
-            ############################wait for ack from both motors before doing this below.#################################################################################
-            dataSet = np.append(dataSet,
-                                [[degreeLeft, degreeRight, rPiCom.getPitchRoll()[0], rPiCom.getPitchRoll()[1]]], axis=0)
-
-    rPiCom.closeSocket()
-    np.savetxt('values.txt', dataSet)
-    poly = MotorPositionModel(dataSet)
-    with open('PolyModel.pkl', 'wb') as output:
-        pickle.dump(poly, output, pickle.HIGHEST_PROTOCOL)
-
-    return poly
-
-    # while (True):
-    #     pitch = float(input('pitch: '))
-    #     roll = float(input('roll: '))
-    #
-    #     left = polyModel.getLeftpos(pitch, roll)
-    #     right = polyModel.getRightpos(pitch, roll)
-    #     print("leftMotor: {}, rightMotor: {}".format(left, right))
-
-#if already calibrated, load the previous polymodel for the platform, otherwise calibrate again
-#The model is a function that calculates position on motors depending on pitch and roll as input
-def getModel():
-    try:
-        with open('PolyModel.pkl', 'rb') as inp:
-            polyM = pickle.load(inp)
-            inp.flush()
-            inp.close()
-            return polyM
-    except:
-        polyM = calibratePlatform(20)
-        return polyM
-
 #sets the software limits for the motors, in this application dont go more than 0 to 120
 def setSWLimits(lowerLimit, upperLimit):
     motornodeLeft.sdo['Software position limit']['Min position limit'].raw = lowerLimit
@@ -159,17 +107,17 @@ setSWLimits(0, 121)
 
 network.nmt.state = 'OPERATIONAL'
 
-polyModel = getModel()
-
-
 acceleration = 1000*6
 deceleration = 1000*6
 #f_in = open(r'\\.\pipe\NPtest', 'r+b', 0)
 while(True):
-    pitch = float(input('pitch: '))
-    roll = float(input('roll: '))
-    leftpos = polyModel.getLeftpos(pitch, roll)
-    rightpos = polyModel.getRightpos(pitch, roll)
+    leftpos = input('position left: ')
+    if(leftpos == 'stop'):
+        break
+    rightpos = input('position right: ')
+
+    leftpos = float(leftpos)
+    rightpos = float(rightpos)
     if(rightpos > 120):
         rightpos = 120
     if(rightpos < 1):
@@ -181,6 +129,22 @@ while(True):
 
     setPosAcc(motornodeLeft,acceleration, deceleration, leftpos)
     setPosAcc(motornodeLeft,acceleration, deceleration, rightpos)
+
+    posReachedLeft = 0
+    posReachedRight = 0
+    #While until home is found by hall effect sensors
+    while (posReachedLeft != 1 and posReachedRight != 1):
+        posReachedLeft = motornodeLeft.sdo['Statusword'].raw
+        print(posReachedLeft)
+        posReachedLeft = posReachedLeft & 0b10000000000
+        posReachedLeft = posReachedLeft >> 10
+        print(posReachedLeft)
+
+        posReachedRight = motornodeRight.sdo['Statusword'].raw
+        print(posReachedRight)
+        posReachedRight = posReachedRight & 0b10000000000
+        posReachedRight = posReachedRight >> 10
+        posReachedRight
 
 
 # shutdown
