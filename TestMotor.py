@@ -59,16 +59,10 @@ def softwareEnable(nodeLeft, nodeRight):
 def findHome(nodeLeft, nodeRight):
     softwareEnable(nodeLeft, nodeRight)
 
-    # set control word bit 4 to start the move
-    #?
-
     latchStatusLeft = 0
     latchStatusRight = 0
     #While until home is found by hall effect sensors
     while ((latchStatusLeft != 1) or (latchStatusRight != 1)):
-        print("inne i while")
-
-        print("sleeping 2")
         latchStatusLeft = motornodeLeft.sdo['LatchStatus'].raw
         latchStatusLeft = latchStatusLeft >> 15
         latchStatusRight = motornodeRight.sdo['LatchStatus'].raw
@@ -84,14 +78,17 @@ def setPosAcc(motornode, acc, dec, pos):
     motornode.pdo.rx[2]['Profile deceleration'].raw = dec
     motornode.pdo.rx[2]['Profile acceleration'].raw = acc
     motornode.pdo.rx[1]['Target position'].raw = pos
+    motornode.pdo.rx[1]['Profile velocity in pp-mode'].raw= 50
     motornode.pdo.rx[1].transmit()
     motornode.pdo.rx[2].transmit()
     acc = motornode.sdo['Profile acceleration'].raw
-    print(acc)
+    print("acc: {}".format(acc))
     dec = motornode.sdo['Profile deceleration'].raw
-    print(dec)
+    print("dec: {}".format(dec))
     posit = motornode.sdo['Target position'].raw
-    print(posit)
+    print("position: {}".format(posit))
+    velocity = motornode.sdo['Profile velocity in pp-mode'].raw
+    print("velocity: {}".format(velocity))
     motornode.sdo['Controlword'].raw = 0x3F
 
 #sets the software limits for the motors, in this application dont go more than 0 to 120
@@ -114,7 +111,7 @@ motornodeRight.sdo['HOME.AUTOMOVE'].raw = 1
 #softwareEnable(motornodeLeft, motornodeRight)
 #findHome(motornodeLeft, motornodeRight)
 
-setSWLimits(0, 121)
+#setSWLimits(0, 121)
 
 network.nmt.state = 'OPERATIONAL'
 
@@ -138,8 +135,8 @@ while(True):
     if (leftpos < 1):
         leftpos = 1
 
-    setPosAcc(motornodeLeft,acceleration, deceleration, leftpos)
-    setPosAcc(motornodeLeft,acceleration, deceleration, rightpos)
+    setPosAcc(motornodeLeft, acceleration, deceleration, leftpos)
+    setPosAcc(motornodeRight, acceleration, deceleration, rightpos)
 
     posReachedLeft = 0
     posReachedRight = 0
