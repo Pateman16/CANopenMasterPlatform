@@ -6,11 +6,11 @@ network = canopen.Network()
 
 # Add some nodes with corresponding Object Dictionaries
 
-network.connect(bustype='ixxat', channel=0, bitrate=250000)
+network.connect(bustype='ixxat', channel=1, bitrate=250000)
 
 #Left and right seen from the front of the platform.
 motornodeLeft = network.add_node(1, 'Eds/AKD CANopen.eds')
-motornodeRight = network.add_node(1, 'Eds/AKD CANopen.eds')
+motornodeRight = network.add_node(2, 'Eds/AKD CANopen.eds')
 #defines rx and tx PDOs of the nodes in network
 def initPDOs(nodeLeft, nodeRight):
 
@@ -39,11 +39,12 @@ def initPDOs(nodeLeft, nodeRight):
     nodeRight.pdo.rx[2].enabled = True
 
     network.nmt.state = 'PRE-OPERATIONAL'
-    motornodeLeft.pdo.save()
+    nodeLeft.pdo.save()
     nodeRight.pdo.save()
 
-#enable drivemode, go to hall effect sensor, set home.
-def findHome(nodeLeft, nodeRight):
+#software enable
+def softwareEnable(nodeLeft, nodeRight):
+    print("software enable")
     # shutdown
     nodeLeft.sdo[0x6040].raw = 6
     nodeRight.sdo[0x6040].raw = 6
@@ -54,6 +55,9 @@ def findHome(nodeLeft, nodeRight):
     # set control word to operation enabled
     nodeLeft.sdo[0x6040].raw = 15
     nodeRight.sdo[0x6040].raw = 15
+#enable drivemode, go to hall effect sensor, set home.
+def findHome(nodeLeft, nodeRight):
+    softwareEnable(nodeLeft, nodeRight)
 
     # set control word bit 4 to start the move
     #?
@@ -61,14 +65,16 @@ def findHome(nodeLeft, nodeRight):
     latchStatusLeft = 0
     latchStatusRight = 0
     #While until home is found by hall effect sensors
-    while (latchStatusLeft != 1 and latchStatusRight != 1):
+    while ((latchStatusLeft != 1) or (latchStatusRight != 1)):
+        print("inne i while")
+
+        print("sleeping 2")
         latchStatusLeft = motornodeLeft.sdo['LatchStatus'].raw
         latchStatusLeft = latchStatusLeft >> 15
-
         latchStatusRight = motornodeRight.sdo['LatchStatus'].raw
         latchStatusRight = latchStatusRight >> 15
 
-    print("Home is set, sleeping 5 sec")
+    print("Home is set, sleeping 1 sec")
     time.sleep(1)
 
 #set position in degrees and acceleration and deceleration in rpm/s and start motor
@@ -101,14 +107,19 @@ initPDOs(motornodeLeft, motornodeRight)
 motornodeLeft.sdo['Modes of operation'].raw = 1
 motornodeRight.sdo['Modes of operation'].raw = 1
 
-findHome(motornodeLeft, motornodeRight)
+#sets the home auto move flag
+#motornodeLeft.sdo['HOME.AUTOMOVE'].raw = 1
+motornodeRight.sdo['HOME.AUTOMOVE'].raw = 1
+
+#softwareEnable(motornodeLeft, motornodeRight)
+#findHome(motornodeLeft, motornodeRight)
 
 setSWLimits(0, 121)
 
 network.nmt.state = 'OPERATIONAL'
 
-acceleration = 1000*6
-deceleration = 1000*6
+acceleration = 50
+deceleration = 50
 #f_in = open(r'\\.\pipe\NPtest', 'r+b', 0)
 while(True):
     leftpos = input('position left: ')
@@ -132,19 +143,19 @@ while(True):
 
     posReachedLeft = 0
     posReachedRight = 0
-    #While until home is found by hall effect sensors
-    while (posReachedLeft != 1 and posReachedRight != 1):
-        posReachedLeft = motornodeLeft.sdo['Statusword'].raw
-        print(posReachedLeft)
-        posReachedLeft = posReachedLeft & 0b10000000000
-        posReachedLeft = posReachedLeft >> 10
-        print(posReachedLeft)
-
-        posReachedRight = motornodeRight.sdo['Statusword'].raw
-        print(posReachedRight)
-        posReachedRight = posReachedRight & 0b10000000000
-        posReachedRight = posReachedRight >> 10
-        posReachedRight
+    # #While until home is found by hall effect sensors
+    # while (posReachedLeft != 1 and posReachedRight != 1):
+    #     posReachedLeft = motornodeLeft.sdo['Statusword'].raw
+    #     print(posReachedLeft)
+    #     posReachedLeft = posReachedLeft & 0b10000000000
+    #     posReachedLeft = posReachedLeft >> 10
+    #     print(posReachedLeft)
+    #
+    #     posReachedRight = motornodeRight.sdo['Statusword'].raw
+    #     print(posReachedRight)
+    #     posReachedRight = posReachedRight & 0b10000000000
+    #     posReachedRight = posReachedRight >> 10
+    #     posReachedRight
 
 
 # shutdown
