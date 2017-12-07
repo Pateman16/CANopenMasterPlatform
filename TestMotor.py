@@ -11,8 +11,8 @@ network.connect(bustype='ixxat', channel=1, bitrate=250000)
 #Left and right seen from the front of the platform.
 motornodeLeft = network.add_node(1, 'Eds/AKD CANopen.eds')
 motornodeRight = network.add_node(2, 'Eds/AKD CANopen.eds')
-#defines rx and tx PDOs of the nodes in network
 
+#sets parameter
 def init(nodeLeft, nodeRight):
     # set mode to position profile mode
     nodeLeft.sdo['Modes of operation'].raw = 1
@@ -60,8 +60,8 @@ def init(nodeLeft, nodeRight):
     nodeRight.sdo['PV scaling factor']['DS402.VELSCALENUM'].raw = 80
 
     # set homing speed
-    nodeLeft.sdo['Homing speeds']['Fast homing speed'].raw = 5
-    nodeRight.sdo['Homing speeds']['Fast homing speed'].raw = 5
+    nodeLeft.sdo['Homing speeds']['Fast homing speed'].raw = 1
+    nodeRight.sdo['Homing speeds']['Fast homing speed'].raw = 1
 ############################################MODULO###############################################
     # enables modulo
     nodeLeft.sdo['PL.MODPEN'].raw = 1
@@ -80,7 +80,7 @@ def init(nodeLeft, nodeRight):
     nodeRight.sdo['PL.MODPDIR'].raw = 3
 ##################################################################################################
 
-
+#defines rx and tx PDOs of the nodes in network
 def initPDOs(nodeLeft, nodeRight):
 
     for i in range(1, 4):
@@ -126,7 +126,6 @@ def softwareEnable(nodeLeft, nodeRight):
     nodeRight.sdo[0x6040].raw = 15
 #enable drivemode, go to hall effect sensor, set home.
 def findHome(nodeLeft, nodeRight):
-    softwareEnable(nodeLeft, nodeRight)
 
     latchStatusLeft = 0
     latchStatusRight = 0
@@ -161,8 +160,8 @@ def setSWLimits(lowerLimit, upperLimit):
     motornodeRight.sdo['Software position limit']['Max position limit'].raw = upperLimit
     motornodeLeft.sdo['SWLS.ENM'].raw = 3
     motornodeRight.sdo['SWLS.ENM'].raw = 3
-    softwareEnable(motornodeLeft, motornodeRight)
-    softwareEnable(motornodeLeft, motornodeRight)
+    #softwareEnable(motornodeLeft, motornodeRight)
+    #softwareEnable(motornodeLeft, motornodeRight)
 
 initPDOs(motornodeLeft, motornodeRight)
 
@@ -170,61 +169,74 @@ init(motornodeLeft, motornodeRight)
 
 #softwareEnable(motornodeLeft, motornodeRight)
 #findHome(motornodeLeft, motornodeRight)
-
+#
 setSWLimits(0, 121)
-
+#
 network.nmt.state = 'OPERATIONAL'
-
-#degrees/second
+#
+# #degrees/second
 acceleration = 700
 deceleration = 700
-#f_in = open(r'\\.\pipe\NPtest', 'r+b', 0)
-
+# #f_in = open(r'\\.\pipe\NPtest', 'r+b', 0)
+#
 # while(True):
 #     leftpos = input('position left: ')
 #     if(leftpos == 'stop'):
-#         break
+#      break
 #     rightpos = input('position right: ')
 #
 #     leftpos = float(leftpos)
 #     rightpos = float(rightpos)
 #     if(rightpos > 120):
-#      rightpos = 120
+#         rightpos = 120
 #     if(rightpos < 1):
-#      rightpos = 1
+#         rightpos = 1
 #     if (leftpos > 120):
-#      leftpos = 120
+#         leftpos = 120
 #     if (leftpos < 1):
-#      leftpos = 1
+#         leftpos = 1
+#
+#     setPosAcc(motornodeLeft, acceleration, deceleration, leftpos)
+#     setPosAcc(motornodeRight, acceleration, deceleration, rightpos)
 for i in range(40):
     time.sleep(0.6)
     if(i%2 == 0):
-        setPosAcc(motornodeLeft, acceleration, deceleration, 60)
-        setPosAcc(motornodeRight, acceleration, deceleration, 60)
-    else:
         setPosAcc(motornodeLeft, acceleration, deceleration, 120)
-        setPosAcc(motornodeRight, acceleration, deceleration, 1)
+        setPosAcc(motornodeRight, acceleration, deceleration, 60)
+        posReachedLeft = 0
+        posReachedRight = 0
+        while((posReachedLeft == 0) or (posReachedRight == 0)):
+            posReachedLeft = motornodeLeft.sdo['Statusword'].raw
+            posReachedLeft = posReachedLeft & (1 << 10)
+            posReachedRight = motornodeRight.sdo['Statusword'].raw
+            posReachedRight = posReachedRight & (1 << 10)
+            print("posReachR: {}, posReachL: {}".format(posReachedRight, posReachedLeft))
 
-    # #While until home is found by hall effect sensors
-    # while (posReachedLeft != 1 and posReachedRight != 1):
-    #     posReachedLeft = motornodeLeft.sdo['Statusword'].raw
-    #     print(posReachedLeft)
-    #     posReachedLeft = posReachedLeft & 0b10000000000
-    #     posReachedLeft = posReachedLeft >> 10
-    #     print(posReachedLeft)
-    #
-    #     posReachedRight = motornodeRight.sdo['Statusword'].raw
-    #     print(posReachedRight)
-    #     posReachedRight = posReachedRight & 0b10000000000
-    #     posReachedRight = posReachedRight >> 10
-    #     posReachedRight
+
+    else:
+        setPosAcc(motornodeLeft, acceleration, deceleration, 60)
+        setPosAcc(motornodeRight, acceleration, deceleration, 1)
+#
+#     # #While until home is found by hall effect sensors
+#     # while (posReachedLeft != 1 and posReachedRight != 1):
+#     #     posReachedLeft = motornodeLeft.sdo['Statusword'].raw
+#     #     print(posReachedLeft)
+#     #     posReachedLeft = posReachedLeft & 0b10000000000
+#     #     posReachedLeft = posReachedLeft >> 10
+#     #     print(posReachedLeft)
+#     #
+#     #     posReachedRight = motornodeRight.sdo['Statusword'].raw
+#     #     print(posReachedRight)
+#     #     posReachedRight = posReachedRight & 0b10000000000
+#     #     posReachedRight = posReachedRight >> 10
+#     #     posReachedRight
 
 
 # shutdown
-setPosAcc(motornodeLeft,acceleration, deceleration, 120)
-setPosAcc(motornodeRight,acceleration, deceleration, 1)
+#setPosAcc(motornodeLeft,acceleration, deceleration, 120)
+#setPosAcc(motornodeRight,acceleration, deceleration, 1)
 print("shutting down")
 time.sleep(1)
-motornodeLeft.sdo[0x6040].raw = 6
-motornodeRight.sdo[0x6040].raw = 6
+#motornodeLeft.sdo[0x6040].raw = 6
+#motornodeRight.sdo[0x6040].raw = 6
 network.disconnect()

@@ -1,5 +1,6 @@
 import canopen
 import time
+import socket
 from RPiCom import RpiPitchRoll
 from motorModelClass import MotorPositionModel
 import numpy as np
@@ -10,11 +11,79 @@ network = canopen.Network()
 
 # Add some nodes with corresponding Object Dictionaries
 
-network.connect(bustype='ixxat', channel=0, bitrate=250000)
+network.connect(bustype='ixxat', channel=1, bitrate=250000)
 
 #Left and right seen from the front of the platform.
 motornodeLeft = network.add_node(1, 'Eds/AKD CANopen.eds')
-motornodeRight = network.add_node(1, 'Eds/AKD CANopen.eds')
+motornodeRight = network.add_node(2, 'Eds/AKD CANopen.eds')
+
+#sets parameter
+def init(nodeLeft, nodeRight):
+    # set mode to position profile mode
+    nodeLeft.sdo['Modes of operation'].raw = 1
+    nodeRight.sdo['Modes of operation'].raw = 1
+
+    nodeLeft.sdo['FBUS.PARAM05'].raw = 16
+    nodeRight.sdo['FBUS.PARAM05'].raw = 16
+
+    fbusparam5Left = nodeLeft.sdo['FBUS.PARAM05'].raw
+    print(fbusparam5Left)
+
+    fbusparam5Right = nodeRight.sdo['FBUS.PARAM05'].raw
+    print(fbusparam5Right)
+
+    #set home mode to 4
+    nodeLeft.sdo['HOME.MODEM'].raw = 4
+    nodeRight.sdo['HOME.MODEM'].raw = 4
+
+    #set rotation direction of homing
+    nodeLeft.sdo['HOME.DIRM'].raw = 1
+    nodeRight.sdo['HOME.DIRM'].raw = 0
+
+    #set digital input as home reference switch
+    nodeLeft.sdo['DIN1.MODE'].raw = 11
+    nodeRight.sdo['DIN1.MODE'].raw = 11
+
+    # sets the home auto move flag
+    nodeLeft.sdo['HOME.AUTOMOVE'].raw = 1
+    nodeRight.sdo['HOME.AUTOMOVE'].raw = 1
+    #set gear ratio to 80:1
+    nodeLeft.sdo['Gear ratio']['Motor revolutions'].raw = 80
+    nodeLeft.sdo['Gear ratio']['Shaft revolutions'].raw = 1
+    nodeLeft.sdo['Feed constant']['Feed'].raw = 360
+
+    nodeRight.sdo['Gear ratio']['Motor revolutions'].raw = 80
+    nodeRight.sdo['Gear ratio']['Shaft revolutions'].raw = 1
+    nodeRight.sdo['Feed constant']['Feed'].raw = 360
+
+    # set home offset
+    nodeLeft.sdo['Home offset'].raw = 120
+    nodeRight.sdo['Home offset'].raw = 1
+
+    #set pvScaling factor
+    nodeLeft.sdo['PV scaling factor']['DS402.VELSCALENUM'].raw = 80
+    nodeRight.sdo['PV scaling factor']['DS402.VELSCALENUM'].raw = 80
+
+    # set homing speed
+    nodeLeft.sdo['Homing speeds']['Fast homing speed'].raw = 1
+    nodeRight.sdo['Homing speeds']['Fast homing speed'].raw = 1
+############################################MODULO###############################################
+    # enables modulo
+    nodeLeft.sdo['PL.MODPEN'].raw = 1
+    nodeRight.sdo['PL.MODPEN'].raw = 1
+
+    # sets modulo lower range
+    nodeLeft.sdo['PL.MODP1'].raw = 0
+    nodeRight.sdo['PL.MODP1'].raw = 0
+
+    # sets modulo higher range
+    nodeLeft.sdo['PL.MODP2'].raw = 360
+    nodeRight.sdo['PL.MODP2'].raw = 360
+
+    #sets direction for motion tasks
+    nodeLeft.sdo['PL.MODPDIR'].raw = 3
+    nodeRight.sdo['PL.MODPDIR'].raw = 3
+
 #defines rx and tx PDOs of the nodes in network
 def initPDOs(nodeLeft, nodeRight):
 
@@ -43,11 +112,12 @@ def initPDOs(nodeLeft, nodeRight):
     nodeRight.pdo.rx[2].enabled = True
 
     network.nmt.state = 'PRE-OPERATIONAL'
-    motornodeLeft.pdo.save()
+    nodeLeft.pdo.save()
     nodeRight.pdo.save()
 
-#enable drivemode, go to hall effect sensor, set home.
-def findHome(nodeLeft, nodeRight):
+#software enable
+def softwareEnable(nodeLeft, nodeRight):
+    print("software enable")
     # shutdown
     nodeLeft.sdo[0x6040].raw = 6
     nodeRight.sdo[0x6040].raw = 6
@@ -58,21 +128,19 @@ def findHome(nodeLeft, nodeRight):
     # set control word to operation enabled
     nodeLeft.sdo[0x6040].raw = 15
     nodeRight.sdo[0x6040].raw = 15
-
-    # set control word bit 4 to start the move
-    #?
+#enable drivemode, go to hall effect sensor, set home.
+def findHome(nodeLeft, nodeRight):
 
     latchStatusLeft = 0
     latchStatusRight = 0
     #While until home is found by hall effect sensors
-    while (latchStatusLeft != 1 and latchStatusRight != 1):
+    while ((latchStatusLeft != 1) or (latchStatusRight != 1)):
         latchStatusLeft = motornodeLeft.sdo['LatchStatus'].raw
         latchStatusLeft = latchStatusLeft >> 15
-
         latchStatusRight = motornodeRight.sdo['LatchStatus'].raw
         latchStatusRight = latchStatusRight >> 15
 
-    print("Home is set, sleeping 5 sec")
+    print("Home is set, sleeping 1 sec")
     time.sleep(1)
 
 #set position in degrees and acceleration and deceleration in rpm/s and start motor
@@ -82,14 +150,9 @@ def setPosAcc(motornode, acc, dec, pos):
     motornode.pdo.rx[2]['Profile deceleration'].raw = dec
     motornode.pdo.rx[2]['Profile acceleration'].raw = acc
     motornode.pdo.rx[1]['Target position'].raw = pos
+    motornode.pdo.rx[1]['Profile velocity in pp-mode'].raw = 150
     motornode.pdo.rx[1].transmit()
     motornode.pdo.rx[2].transmit()
-    acc = motornode.sdo['Profile acceleration'].raw
-    print(acc)
-    dec = motornode.sdo['Profile deceleration'].raw
-    print(dec)
-    posit = motornode.sdo['Target position'].raw
-    print(posit)
     motornode.sdo['Controlword'].raw = 0x3F
 
 #calibrateVal is the value that determines how many samples is made. degree/sample = 120 / calibrateVal
@@ -102,14 +165,23 @@ def calibratePlatform(calibrateVal):
     dataSet = np.empty(shape=[0, 4])
     for i in range(calibrateVal):
         degreeLeft = i * (120 / calibrateVal)
-        setPosAcc(motornodeLeft, 1000, 1000, degreeLeft)
+        setPosAcc(motornodeLeft, 500, 500, degreeLeft)
         for j in range(calibrateVal):
             degreeRight = 120 - j * (120 / calibrateVal)
-            setPosAcc(motornodeRight, 1000, 1000, degreeRight)
+            setPosAcc(motornodeRight, 500, 500, degreeRight)
             #read statusword bit 10 for position reached? for both motors
             ############################wait for ack from both motors before doing this below.#################################################################################
-            dataSet = np.append(dataSet,
-                                [[degreeLeft, degreeRight, rPiCom.getPitchRoll()[0], rPiCom.getPitchRoll()[1]]], axis=0)
+            posReachedLeft = 0
+            posReachedRight = 0
+            while ((posReachedLeft == 0) or (posReachedRight == 0)):
+                posReachedLeft = motornodeLeft.sdo['Statusword'].raw
+                posReachedLeft = posReachedLeft & (1 << 10)
+                posReachedRight = motornodeRight.sdo['Statusword'].raw
+                posReachedRight = posReachedRight & (1 << 10)
+                print("posReachR: {}, posReachL: {}".format(posReachedRight, posReachedLeft))
+
+            time.sleep(0.5)
+            dataSet = np.append(dataSet, [[degreeLeft, degreeRight, rPiCom.getPitchRoll()[0], rPiCom.getPitchRoll()[1]]], axis=0)
 
     rPiCom.closeSocket()
     np.savetxt('values.txt', dataSet)
@@ -142,16 +214,17 @@ def getModel():
 
 #sets the software limits for the motors, in this application dont go more than 0 to 120
 def setSWLimits(lowerLimit, upperLimit):
+
     motornodeLeft.sdo['Software position limit']['Min position limit'].raw = lowerLimit
     motornodeLeft.sdo['Software position limit']['Max position limit'].raw = upperLimit
     motornodeRight.sdo['Software position limit']['Min position limit'].raw = lowerLimit
     motornodeRight.sdo['Software position limit']['Max position limit'].raw = upperLimit
+    motornodeLeft.sdo['SWLS.ENM'].raw = 3
+    motornodeRight.sdo['SWLS.ENM'].raw = 3
 
 initPDOs(motornodeLeft, motornodeRight)
 
-#set mode to position profile mode
-motornodeLeft.sdo['Modes of operation'].raw = 1
-motornodeRight.sdo['Modes of operation'].raw = 1
+init(motornodeLeft, motornodeRight)
 
 findHome(motornodeLeft, motornodeRight)
 
@@ -162,10 +235,21 @@ network.nmt.state = 'OPERATIONAL'
 polyModel = getModel()
 
 
-acceleration = 1000*6
-deceleration = 1000*6
-#f_in = open(r'\\.\pipe\NPtest', 'r+b', 0)
+#degrees/second^2
+acceleration = 700
+deceleration = 700
+#connect to unity
+#HOST = '127.0.0.1'
+#PORT = 9050
+#sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#print(socket.gethostbyname_ex('localhost'))
+#sock.bind((HOST, PORT))
+
 while(True):
+    #get unity data
+    #data, addr = sock.recvfrom(1024)
+    #print(data)
+
     pitch = float(input('pitch: '))
     roll = float(input('roll: '))
     leftpos = polyModel.getLeftpos(pitch, roll)
@@ -180,12 +264,13 @@ while(True):
         leftpos = 1
 
     setPosAcc(motornodeLeft,acceleration, deceleration, leftpos)
-    setPosAcc(motornodeLeft,acceleration, deceleration, rightpos)
+    setPosAcc(motornodeRight,acceleration, deceleration, rightpos)
 
 
 # shutdown
-setPosAcc(motornodeLeft,acceleration, deceleration, 60)
-setPosAcc(motornodeRight,acceleration, deceleration, 60)
+setPosAcc(motornodeLeft,acceleration, deceleration, 120)
+setPosAcc(motornodeRight,acceleration, deceleration, 1)
+print("shutting down")
 time.sleep(1)
 motornodeLeft.sdo[0x6040].raw = 6
 motornodeRight.sdo[0x6040].raw = 6
