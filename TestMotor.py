@@ -12,6 +12,75 @@ network.connect(bustype='ixxat', channel=1, bitrate=250000)
 motornodeLeft = network.add_node(1, 'Eds/AKD CANopen.eds')
 motornodeRight = network.add_node(2, 'Eds/AKD CANopen.eds')
 #defines rx and tx PDOs of the nodes in network
+
+def init(nodeLeft, nodeRight):
+    # set mode to position profile mode
+    nodeLeft.sdo['Modes of operation'].raw = 1
+    nodeRight.sdo['Modes of operation'].raw = 1
+
+    nodeLeft.sdo['FBUS.PARAM05'].raw = 16
+    nodeRight.sdo['FBUS.PARAM05'].raw = 16
+
+    fbusparam5Left = nodeLeft.sdo['FBUS.PARAM05'].raw
+    print(fbusparam5Left)
+
+    fbusparam5Right = nodeRight.sdo['FBUS.PARAM05'].raw
+    print(fbusparam5Right)
+
+    #set home mode to 4
+    nodeLeft.sdo['HOME.MODEM'].raw = 4
+    nodeRight.sdo['HOME.MODEM'].raw = 4
+
+    #set rotation direction of homing
+    nodeLeft.sdo['HOME.DIRM'].raw = 1
+    nodeRight.sdo['HOME.DIRM'].raw = 0
+
+    #set digital input as home reference switch
+    nodeLeft.sdo['DIN1.MODE'].raw = 11
+    nodeRight.sdo['DIN1.MODE'].raw = 11
+
+    # sets the home auto move flag
+    nodeLeft.sdo['HOME.AUTOMOVE'].raw = 1
+    nodeRight.sdo['HOME.AUTOMOVE'].raw = 1
+    #set gear ratio to 80:1
+    nodeLeft.sdo['Gear ratio']['Motor revolutions'].raw = 80
+    nodeLeft.sdo['Gear ratio']['Shaft revolutions'].raw = 1
+    nodeLeft.sdo['Feed constant']['Feed'].raw = 360
+
+    nodeRight.sdo['Gear ratio']['Motor revolutions'].raw = 80
+    nodeRight.sdo['Gear ratio']['Shaft revolutions'].raw = 1
+    nodeRight.sdo['Feed constant']['Feed'].raw = 360
+
+    # set home offset
+    nodeLeft.sdo['Home offset'].raw = 120
+    nodeRight.sdo['Home offset'].raw = 1
+
+    #set pvScaling factor
+    nodeLeft.sdo['PV scaling factor']['DS402.VELSCALENUM'].raw = 80
+    nodeRight.sdo['PV scaling factor']['DS402.VELSCALENUM'].raw = 80
+
+    # set homing speed
+    nodeLeft.sdo['Homing speeds']['Fast homing speed'].raw = 5
+    nodeRight.sdo['Homing speeds']['Fast homing speed'].raw = 5
+############################################MODULO###############################################
+    # enables modulo
+    nodeLeft.sdo['PL.MODPEN'].raw = 1
+    nodeRight.sdo['PL.MODPEN'].raw = 1
+
+    # sets modulo lower range
+    nodeLeft.sdo['PL.MODP1'].raw = 0
+    nodeRight.sdo['PL.MODP1'].raw = 0
+
+    # sets modulo higher range
+    nodeLeft.sdo['PL.MODP2'].raw = 360
+    nodeRight.sdo['PL.MODP2'].raw = 360
+
+    #sets direction for motion tasks
+    nodeLeft.sdo['PL.MODPDIR'].raw = 3
+    nodeRight.sdo['PL.MODPDIR'].raw = 3
+##################################################################################################
+
+
 def initPDOs(nodeLeft, nodeRight):
 
     for i in range(1, 4):
@@ -78,68 +147,64 @@ def setPosAcc(motornode, acc, dec, pos):
     motornode.pdo.rx[2]['Profile deceleration'].raw = dec
     motornode.pdo.rx[2]['Profile acceleration'].raw = acc
     motornode.pdo.rx[1]['Target position'].raw = pos
-    motornode.pdo.rx[1]['Profile velocity in pp-mode'].raw= 50
+    motornode.pdo.rx[1]['Profile velocity in pp-mode'].raw = 150
     motornode.pdo.rx[1].transmit()
     motornode.pdo.rx[2].transmit()
-    acc = motornode.sdo['Profile acceleration'].raw
-    print("acc: {}".format(acc))
-    dec = motornode.sdo['Profile deceleration'].raw
-    print("dec: {}".format(dec))
-    posit = motornode.sdo['Target position'].raw
-    print("position: {}".format(posit))
-    velocity = motornode.sdo['Profile velocity in pp-mode'].raw
-    print("velocity: {}".format(velocity))
     motornode.sdo['Controlword'].raw = 0x3F
 
 #sets the software limits for the motors, in this application dont go more than 0 to 120
 def setSWLimits(lowerLimit, upperLimit):
+
     motornodeLeft.sdo['Software position limit']['Min position limit'].raw = lowerLimit
     motornodeLeft.sdo['Software position limit']['Max position limit'].raw = upperLimit
     motornodeRight.sdo['Software position limit']['Min position limit'].raw = lowerLimit
     motornodeRight.sdo['Software position limit']['Max position limit'].raw = upperLimit
+    motornodeLeft.sdo['SWLS.ENM'].raw = 3
+    motornodeRight.sdo['SWLS.ENM'].raw = 3
+    softwareEnable(motornodeLeft, motornodeRight)
+    softwareEnable(motornodeLeft, motornodeRight)
 
 initPDOs(motornodeLeft, motornodeRight)
 
-#set mode to position profile mode
-motornodeLeft.sdo['Modes of operation'].raw = 1
-motornodeRight.sdo['Modes of operation'].raw = 1
-
-#sets the home auto move flag
-#motornodeLeft.sdo['HOME.AUTOMOVE'].raw = 1
-motornodeRight.sdo['HOME.AUTOMOVE'].raw = 1
+init(motornodeLeft, motornodeRight)
 
 #softwareEnable(motornodeLeft, motornodeRight)
 #findHome(motornodeLeft, motornodeRight)
 
-#setSWLimits(0, 121)
+setSWLimits(0, 121)
 
 network.nmt.state = 'OPERATIONAL'
 
-acceleration = 50
-deceleration = 50
+#degrees/second
+acceleration = 700
+deceleration = 700
 #f_in = open(r'\\.\pipe\NPtest', 'r+b', 0)
-while(True):
-    leftpos = input('position left: ')
-    if(leftpos == 'stop'):
-        break
-    rightpos = input('position right: ')
 
-    leftpos = float(leftpos)
-    rightpos = float(rightpos)
-    if(rightpos > 120):
-        rightpos = 120
-    if(rightpos < 1):
-        rightpos = 1
-    if (leftpos > 120):
-        leftpos = 120
-    if (leftpos < 1):
-        leftpos = 1
+# while(True):
+#     leftpos = input('position left: ')
+#     if(leftpos == 'stop'):
+#         break
+#     rightpos = input('position right: ')
+#
+#     leftpos = float(leftpos)
+#     rightpos = float(rightpos)
+#     if(rightpos > 120):
+#      rightpos = 120
+#     if(rightpos < 1):
+#      rightpos = 1
+#     if (leftpos > 120):
+#      leftpos = 120
+#     if (leftpos < 1):
+#      leftpos = 1
+for i in range(40):
+    time.sleep(0.6)
+    if(i%2 == 0):
+        setPosAcc(motornodeLeft, acceleration, deceleration, 60)
+        setPosAcc(motornodeRight, acceleration, deceleration, 60)
+    else:
+        setPosAcc(motornodeLeft, acceleration, deceleration, 120)
+        setPosAcc(motornodeRight, acceleration, deceleration, 1)
 
-    setPosAcc(motornodeLeft, acceleration, deceleration, leftpos)
-    setPosAcc(motornodeRight, acceleration, deceleration, rightpos)
-
-    posReachedLeft = 0
-    posReachedRight = 0
     # #While until home is found by hall effect sensors
     # while (posReachedLeft != 1 and posReachedRight != 1):
     #     posReachedLeft = motornodeLeft.sdo['Statusword'].raw
@@ -156,8 +221,9 @@ while(True):
 
 
 # shutdown
-setPosAcc(motornodeLeft,acceleration, deceleration, 60)
-setPosAcc(motornodeRight,acceleration, deceleration, 60)
+setPosAcc(motornodeLeft,acceleration, deceleration, 120)
+setPosAcc(motornodeRight,acceleration, deceleration, 1)
+print("shutting down")
 time.sleep(1)
 motornodeLeft.sdo[0x6040].raw = 6
 motornodeRight.sdo[0x6040].raw = 6
