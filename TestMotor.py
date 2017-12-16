@@ -52,7 +52,7 @@ def init(nodeLeft, nodeRight):
     nodeRight.sdo['Feed constant']['Feed'].raw = 360
 
     # set home offset
-    nodeLeft.sdo['Home offset'].raw = 120
+    nodeLeft.sdo['Home offset'].raw = 80
     nodeRight.sdo['Home offset'].raw = 1
 
     #set pvScaling factor
@@ -146,7 +146,7 @@ def setPosAcc(motornode, acc, dec, pos):
     motornode.pdo.rx[2]['Profile deceleration'].raw = dec
     motornode.pdo.rx[2]['Profile acceleration'].raw = acc
     motornode.pdo.rx[1]['Target position'].raw = pos
-    motornode.pdo.rx[1]['Profile velocity in pp-mode'].raw = 150
+    motornode.pdo.rx[1]['Profile velocity in pp-mode'].raw = 75
     motornode.pdo.rx[1].transmit()
     motornode.pdo.rx[2].transmit()
     motornode.sdo['Controlword'].raw = 0x3F
@@ -167,56 +167,56 @@ initPDOs(motornodeLeft, motornodeRight)
 
 init(motornodeLeft, motornodeRight)
 
-#softwareEnable(motornodeLeft, motornodeRight)
-#findHome(motornodeLeft, motornodeRight)
+softwareEnable(motornodeLeft, motornodeRight)
+findHome(motornodeLeft, motornodeRight)
 #
-setSWLimits(0, 121)
+setSWLimits(0, 81)
 #
 network.nmt.state = 'OPERATIONAL'
 #
 # #degrees/second
-acceleration = 700
-deceleration = 700
+acceleration = 350
+deceleration = 350
 # #f_in = open(r'\\.\pipe\NPtest', 'r+b', 0)
 #
-# while(True):
-#     leftpos = input('position left: ')
-#     if(leftpos == 'stop'):
-#      break
-#     rightpos = input('position right: ')
-#
-#     leftpos = float(leftpos)
-#     rightpos = float(rightpos)
-#     if(rightpos > 120):
-#         rightpos = 120
-#     if(rightpos < 1):
-#         rightpos = 1
-#     if (leftpos > 120):
-#         leftpos = 120
-#     if (leftpos < 1):
-#         leftpos = 1
-#
-#     setPosAcc(motornodeLeft, acceleration, deceleration, leftpos)
-#     setPosAcc(motornodeRight, acceleration, deceleration, rightpos)
-for i in range(40):
-    time.sleep(0.6)
-    if(i%2 == 0):
-        setPosAcc(motornodeLeft, acceleration, deceleration, 120)
-        setPosAcc(motornodeRight, acceleration, deceleration, 60)
-        posReachedLeft = 0
-        posReachedRight = 0
-        while((posReachedLeft == 0) or (posReachedRight == 0)):
-            posReachedLeft = motornodeLeft.sdo['Statusword'].raw
-            posReachedLeft = posReachedLeft & (1 << 10)
-            posReachedRight = motornodeRight.sdo['Statusword'].raw
-            posReachedRight = posReachedRight & (1 << 10)
-            print("posReachR: {}, posReachL: {}".format(posReachedRight, posReachedLeft))
+while(True):
+    leftpos = input('position left: ')
+    if(leftpos == 'stop'):
+     break
+    rightpos = input('position right: ')
 
+    leftpos = float(leftpos)
+    rightpos = float(rightpos)
+    if(rightpos >80):
+        rightpos = 80
+    if(rightpos < 1):
+        rightpos = 1
+    if (leftpos > 80):
+        leftpos = 80
+    if (leftpos < 1):
+        leftpos = 1
 
-    else:
-        setPosAcc(motornodeLeft, acceleration, deceleration, 60)
-        setPosAcc(motornodeRight, acceleration, deceleration, 1)
+    setPosAcc(motornodeLeft, acceleration, deceleration, leftpos)
+    setPosAcc(motornodeRight, acceleration, deceleration, rightpos)
+# for i in range(40):
+#     time.sleep(0.6)
+#     if(i%2 == 0):
+#         setPosAcc(motornodeLeft, acceleration, deceleration, 120)
+#         setPosAcc(motornodeRight, acceleration, deceleration, 60)
+#         posReachedLeft = 0
+#         posReachedRight = 0
+#         while((posReachedLeft == 0) or (posReachedRight == 0)):
+#             posReachedLeft = motornodeLeft.sdo['Statusword'].raw
+#             posReachedLeft = posReachedLeft & (1 << 10)
+#             posReachedRight = motornodeRight.sdo['Statusword'].raw
+#             posReachedRight = posReachedRight & (1 << 10)
+#             print("posReachR: {}, posReachL: {}".format(posReachedRight, posReachedLeft))
 #
+#
+#     else:
+#         setPosAcc(motornodeLeft, acceleration, deceleration, 60)
+#         setPosAcc(motornodeRight, acceleration, deceleration, 1)
+# #
 #     # #While until home is found by hall effect sensors
 #     # while (posReachedLeft != 1 and posReachedRight != 1):
 #     #     posReachedLeft = motornodeLeft.sdo['Statusword'].raw

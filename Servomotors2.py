@@ -2,7 +2,7 @@ import canopen
 import time
 import socket
 from RPiCom import RpiPitchRoll
-from motorModelClass import MotorPositionModel
+from motorModelPls import MotorPositionModel
 import numpy as np
 import pickle
 
@@ -83,7 +83,10 @@ def init(nodeLeft, nodeRight):
     #sets direction for motion tasks
     nodeLeft.sdo['PL.MODPDIR'].raw = 3
     nodeRight.sdo['PL.MODPDIR'].raw = 3
+
 ##################################################################################################
+
+
 #defines rx and tx PDOs of the nodes in network
 def initPDOs(nodeLeft, nodeRight):
 
@@ -150,7 +153,7 @@ def setPosAcc(motornode, acc, dec, pos):
     motornode.pdo.rx[2]['Profile deceleration'].raw = dec
     motornode.pdo.rx[2]['Profile acceleration'].raw = acc
     motornode.pdo.rx[1]['Target position'].raw = pos
-    motornode.pdo.rx[1]['Profile velocity in pp-mode'].raw = 75
+    motornode.pdo.rx[1]['Profile velocity in pp-mode'].raw = 150
     motornode.pdo.rx[1].transmit()
     motornode.pdo.rx[2].transmit()
     motornode.sdo['Controlword'].raw = 0x3F
@@ -186,7 +189,7 @@ def calibratePlatform(calibrateVal):
             dataSet = np.append(dataSet, [[degreeLeft, degreeRight, rPiCom.getPitchRoll()[0], rPiCom.getPitchRoll()[1]]], axis=0)
 
     rPiCom.closeSocket()
-    np.savetxt('values.txt', dataSet)
+    np.savetxt('values2.txt', dataSet)
     poly = MotorPositionModel(dataSet)
     with open('PolyModel.pkl', 'wb') as output:
         pickle.dump(poly, output, pickle.HIGHEST_PROTOCOL)
@@ -230,8 +233,8 @@ initPDOs(motornodeLeft, motornodeRight)
 print('initpdo done')
 init(motornodeLeft, motornodeRight)
 print('init done')
-softwareEnable(motornodeLeft,motornodeRight)
-findHome(motornodeLeft, motornodeRight)
+#softwareEnable(motornodeLeft,motornodeRight)
+#findHome(motornodeLeft, motornodeRight)
 print('findhome done')
 setSWLimits(0, 81)
 print('swlimits done')
@@ -241,37 +244,34 @@ polyModel = getModel()
 print('model done')
 
 #degrees/second^2
-acceleration = 350
-deceleration = 350
+acceleration = 700
+deceleration = 700
 #connect to unity
 #HOST = '127.0.0.1'
 #PORT = 9050
 #sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 #print(socket.gethostbyname_ex('localhost'))
 #sock.bind((HOST, PORT))
-rpi = RpiPitchRoll(8888,"169.254.209.246")
+rpi = RpiPitchRoll("169.254.209.246",8888)
 while(True):
     #get unity data
-    #data, addr = sock.recvfrom(1024)
-    #print(data)
+    #time.sleep(0.1)
+    rpiVal = rpi.getPitchRoll()
+    pitch = rpiVal[0]#float(input('pitch: '))
+    roll = rpiVal[1]#float(input('roll: '))
+    pos = polyModel.getMotorPos(pitch, roll)
+    print("leftpos: {}, rightpos: {}".format(pos[0][0],pos[0][1]))
+    if(pos[0][1] > 80):
+        pos[0][1] = 80
+    if(pos[0][1] < 1):
+        pos[0][1] = 1
+    if (pos[0][0] > 80):
+        pos[0][0] = 80
+    if (pos[0][0] < 1):
+        pos[0][0] = 1
 
-    pitch = float(input('pitch: '))
-    roll = float(input('roll: '))
-    leftpos = polyModel.getLeftpos(pitch, roll)
-    rightpos = polyModel.getRightpos(pitch, roll)
-    print("leftpos: {}, rightpos: {}".format(leftpos,rightpos))
-    if(rightpos > 80):
-        rightpos = 80
-    if(rightpos < 1):
-        rightpos = 1
-    if (leftpos > 80):
-        leftpos = 80
-    if (leftpos < 1):
-        leftpos = 1
-
-    setPosAcc(motornodeLeft,acceleration, deceleration, leftpos)
-    setPosAcc(motornodeRight,acceleration, deceleration, rightpos)
-    print(rpi.getPitchRoll())
+    setPosAcc(motornodeLeft,acceleration, deceleration, pos[0][0])
+    setPosAcc(motornodeRight,acceleration, deceleration, pos[0][1])
 
 # shutdown
 setPosAcc(motornodeLeft,acceleration, deceleration, 80)

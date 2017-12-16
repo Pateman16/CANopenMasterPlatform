@@ -17,13 +17,10 @@ class RpiPitchRoll(object):
         try:
             self.serverSock.sendto(b'send data', client_server_address)
             data, addr = self.serverSock.recvfrom(4096)
-            print(data)
             # convert binary array to string array
             data = data.decode('ascii')
-            print(data)
             # split by comma to another array
             dataSplit = data.split(',')
-            print(dataSplit)
             # convert pitch and roll to float
             floatArr = [float(dataSplit[0]), float(dataSplit[1])]
 
