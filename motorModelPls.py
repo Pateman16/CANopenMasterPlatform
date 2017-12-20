@@ -1,8 +1,5 @@
-from sklearn import linear_model
-from sklearn.preprocessing import PolynomialFeatures
 from sklearn.cross_decomposition import PLSRegression
-import pandas as pd
-import numpy as np
+
 
 class MotorPositionModel(object):
 

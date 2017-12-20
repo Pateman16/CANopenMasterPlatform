@@ -5,6 +5,9 @@ from RPiCom import RpiPitchRoll
 from motorModelPls import MotorPositionModel
 import numpy as np
 import pickle
+import struct
+import threading
+import zmq
 
 # Start with creating a network representing one CAN bus
 network = canopen.Network()
@@ -12,10 +15,17 @@ network = canopen.Network()
 # Add some nodes with corresponding Object Dictionaries
 
 network.connect(bustype='ixxat', channel=1, bitrate=250000)
-
 #Left and right seen from the front of the platform.
 motornodeLeft = network.add_node(1, 'Eds/AKD CANopen.eds')
 motornodeRight = network.add_node(2, 'Eds/AKD CANopen.eds')
+rightJoystickStick = network.add_node(5, None)
+leftJoystickStick = network.add_node(6, None)
+rightJoystickButtons = network.add_node(7, None)
+leftJoystickButtons = network.add_node(8, None)
+rightJoystickStick.nmt.state = 'PRE-OPERATIONAL'
+leftJoystickStick.nmt.state = 'PRE-OPERATIONAL'
+rightJoystickButtons.nmt.state = 'PRE-OPERATIONAL'
+leftJoystickButtons.nmt.state = 'PRE-OPERATIONAL'
 
 #sets parameter
 def init(nodeLeft, nodeRight):
@@ -102,8 +112,10 @@ def initPDOs(nodeLeft, nodeRight):
     nodeLeft.pdo.rx[1].add_variable('Profile velocity in pp-mode')
     nodeLeft.pdo.rx[2].add_variable('Profile acceleration')
     nodeLeft.pdo.rx[2].add_variable('Profile deceleration')
+    nodeLeft.pdo.rx[3].add_variable('Controlword')
     nodeLeft.pdo.rx[1].enabled = True
     nodeLeft.pdo.rx[2].enabled = True
+    nodeLeft.pdo.rx[3].enabled = True
 
     nodeRight.pdo.rx[1].clear()
 
@@ -111,8 +123,10 @@ def initPDOs(nodeLeft, nodeRight):
     nodeRight.pdo.rx[1].add_variable('Profile velocity in pp-mode')
     nodeRight.pdo.rx[2].add_variable('Profile acceleration')
     nodeRight.pdo.rx[2].add_variable('Profile deceleration')
+    nodeRight.pdo.rx[3].add_variable('Controlword')
     nodeRight.pdo.rx[1].enabled = True
     nodeRight.pdo.rx[2].enabled = True
+    nodeRight.pdo.rx[3].enabled = True
 
     network.nmt.state = 'PRE-OPERATIONAL'
     nodeLeft.pdo.save()
@@ -148,15 +162,24 @@ def findHome(nodeLeft, nodeRight):
 
 #set position in degrees and acceleration and deceleration in rpm/s and start motor
 def setPosAcc(motornode, acc, dec, pos):
-    motornode.sdo[0x6040].raw = 7
-    motornode.sdo[0x6040].raw = 15
-    motornode.pdo.rx[2]['Profile deceleration'].raw = dec
-    motornode.pdo.rx[2]['Profile acceleration'].raw = acc
-    motornode.pdo.rx[1]['Target position'].raw = pos
-    motornode.pdo.rx[1]['Profile velocity in pp-mode'].raw = 150
-    motornode.pdo.rx[1].transmit()
-    motornode.pdo.rx[2].transmit()
-    motornode.sdo['Controlword'].raw = 0x3F
+    try:
+        #motornode.sdo[0x6040].raw = 7
+        #time.sleep(0.001)
+        #motornode.sdo[0x6040].raw = 15
+        motornode.pdo.rx[3]['Controlword'].raw = 15
+        motornode.pdo.rx[3].transmit()
+        motornode.pdo.rx[2]['Profile deceleration'].raw = dec
+        motornode.pdo.rx[2]['Profile acceleration'].raw = acc
+        motornode.pdo.rx[1]['Target position'].raw = pos
+        motornode.pdo.rx[1]['Profile velocity in pp-mode'].raw = 150
+        motornode.pdo.rx[1].transmit()
+        motornode.pdo.rx[2].transmit()
+
+        #motornode.sdo['Controlword'].raw = 0x3F
+        motornode.pdo.rx[3]['Controlword'].raw = 0x3F
+        motornode.pdo.rx[3].transmit()
+    except:
+        pass
 
 #calibrateVal is the value that determines how many samples is made. degree/sample = 120 / calibrateVal
 def calibratePlatform(calibrateVal):
@@ -240,63 +263,196 @@ setSWLimits(0, 81)
 print('swlimits done')
 network.nmt.state = 'OPERATIONAL'
 
+def checkSigned(value):
+    value = int(value, 16)
+    value = value & 0x0fff
+    if(value > 0x3ff):
+        value = value & 0x3ff
+        value = value - 0x400
+        return value
+    else:
+        return value
+def getbyte(byteNr, byteArray):
+    val1 = byteArray[byteNr * 2]
+    val2 = byteArray[byteNr * 2 + 1]
+    val2 = val2 << 8
+    val= val1|val2
+    val = val.to_bytes(2, byteorder='big')
+    val= val.hex()
+    return val
+
+
+rightxyString = ""
+rightButtonString = ""
+leftxyString = ""
+leftButtonString = ""
+totString = ""
+#Using a callback to asynchronously receive values
+context = zmq.Context()
+socketJoystick = context.socket(zmq.PUB)
+socketJoystick.bind("tcp://*:12345")
+def print_joystick(id, dataByteArray, unknown):
+    #print("id: {} x: {} y: {}".format(hex(id), checkSigned(getbyte(0,dataByteArray)),checkSigned(getbyte(2,dataByteArray))))
+    global rightxyString
+    global rightButtonString
+    global leftxyString
+    global leftButtonString
+    global totString
+    if(id == int('0x185',16)):
+        rightxyString = "{},{}".format(checkSigned(getbyte(0,dataByteArray)), checkSigned(getbyte(2,dataByteArray)))
+    if(id == int('0x186',16)):
+        leftxyString = "{},{}".format(checkSigned(getbyte(0, dataByteArray)), checkSigned(getbyte(2, dataByteArray)))
+    if(id == int('387',16)):
+        rightButtonString = "{}".format(checkSigned(getbyte(0, dataByteArray)))
+    if (id == int('388', 16)):
+        leftButtonString = "{}".format(checkSigned(getbyte(0, dataByteArray)))
+
+
+    totString = "{},{},{},{}".format(rightxyString, leftxyString, rightButtonString, leftButtonString)
+    message = totString
+    socketJoystick.send_string(message)
+    print(totString)
+
 polyModel = getModel()
 print('model done')
 
+#send empty TXPDO with RTR to get the nodes start sending values
+time.sleep(0.05);
+network.send_message(0x185, 0, True);
+time.sleep(0.05);
+network.send_message(0x186, 0, True);
+time.sleep(0.05);
+network.send_message(0x387, 0, True);
+time.sleep(0.05);
+network.send_message(0x388, 0, True);
+time.sleep(0.05);
+print("sent empty PDOs")
 #degrees/second^2
-acceleration = 700
-deceleration = 700
-#connect to unity
-#HOST = '127.0.0.1'
-#PORT = 9050
-#sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#print(socket.gethostbyname_ex('localhost'))
-#sock.bind((HOST, PORT))
+acceleration = 50
+deceleration = 50
 
+class joyStickThread(threading.Thread):
+    def __init__(self):
+        print("joy stickthread initialised")
+    def run(self):
+        context = zmq.Context()
+        socketJoystick = context.socket(zmq.PUB)
+        socketJoystick.bind("tcp://*:12345")
+        while(True):
+            time.sleep(0.1)
+            try:
+                ######SEND DATA##########
+                if (rightxyString and rightButtonString and leftxyString and leftButtonString):
+                    message = totString
+                    socketJoystick.send_string(message)
+                    print("inne i tråden: {}".format(totString))
+                else:
+                    print('FEL something var tomt')
+            except:
+                print("FEEEEEEEEEEEEEEEL")
 
-rpi = RpiPitchRoll("169.254.209.246", 8888)
-HOST = '127.0.0.1'
-PORT = 9050
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind((HOST, PORT))
+class motorThread(threading.Thread):
+    def __init__(self):
+        print("motor thread initialised")
+    def run(self):
+        context = zmq.Context()
+        socketMotor = context.socket(zmq.REQ)
+        socketMotor.connect("tcp://localhost:12346")
+
+        TIMEOUT = 10000
+        while (True):
+            ######READ DATA##########
+            time.sleep(0.1)
+            socketMotor.send_string("request")
+            poller = zmq.Poller()
+            poller.register(socketMotor, zmq.POLLIN)
+            evt = dict(poller.poll(TIMEOUT))
+            if evt:
+                if evt.get(socketMotor) == zmq.POLLIN:
+                    data = socketMotor.recv(zmq.NOBLOCK)
+                    dataASCII = data.decode('ascii')
+                    dataSplit = dataASCII.split(',')
+                    floatArr = [float(dataSplit[0]), float(dataSplit[1]), float(dataSplit[2])]
+                    print(floatArr)
+                    pitch = floatArr[0]
+                    roll = floatArr[1]
+                    pos = polyModel.getMotorPos(pitch, roll)
+                    if (pos[0][1] > 80):
+                        pos[0][1] = 80
+                    if (pos[0][1] < 1):
+                        pos[0][1] = 1
+                    if (pos[0][0] > 80):
+                        pos[0][0] = 80
+                    if (pos[0][0] < 1):
+                        pos[0][0] = 1
+
+                    setPosAcc(motornodeLeft, acceleration, deceleration, pos[0][0])
+                    setPosAcc(motornodeRight, acceleration, deceleration, pos[0][1])
+                    continue
+            # time.sleep(0.5)
+            socketMotor.close()
+            socketMotor = context.socket(zmq.REQ)
+            socketMotor.connect("tcp://localhost:12346")
+
+#joyThread = joyStickThread()
+#joyThread.run()
+
+#motorThread = motorThread()
+#motorThread.run()
+context = zmq.Context()
+socketMotor = context.socket(zmq.REQ)
+socketMotor.connect("tcp://localhost:12346")
+TIMEOUT = 10000
 while(True):
-    #get unity data
-    data, addr = sock.recvfrom(4096)
-    dataASCII = data.decode('ascii')
-    dataSplit = dataASCII.split(',')
-    floatArr = [float(dataSplit[0]), float(dataSplit[1]), float(dataSplit[2])]
-    pitch = floatArr[0]
-    roll = floatArr[1]
-    #time.sleep(0.1)
-    pos = polyModel.getMotorPos(pitch, roll)
-    if(pos[0][1] > 80):
-        pos[0][1] = 80
-    if(pos[0][1] < 1):
-        pos[0][1] = 1
-    if (pos[0][0] > 80):
-        pos[0][0] = 80
-    if (pos[0][0] < 1):
-        pos[0][0] = 1
+    network.subscribe(0x185, print_joystick)
+    network.subscribe(0x186, print_joystick)
+    network.subscribe(0x387, print_joystick)
+    network.subscribe(0x388, print_joystick)
+    time.sleep(0.1)
+    network.unsubscribe(0x185)
+    network.unsubscribe(0x186)
+    network.unsubscribe(0x387)
+    network.unsubscribe(0x388)
+    ######READ DATA##########
+    socketMotor.send_string("request")
+    poller = zmq.Poller()
+    poller.register(socketMotor, zmq.POLLIN)
+    evt = dict(poller.poll(TIMEOUT))
+    if evt:
+        if evt.get(socketMotor) == zmq.POLLIN:
+            data = socketMotor.recv(zmq.NOBLOCK)
+            dataASCII = data.decode('ascii')
+            dataSplit = dataASCII.split(',')
+            floatArr = [float(dataSplit[0]), float(dataSplit[1]), float(dataSplit[2])]
+            print(floatArr)
+            pitch = floatArr[0]
+            roll = floatArr[1] - 5
+            if(roll > 5):
+                roll = 5
+            if(roll < -5):
+                roll = -5
 
-    setPosAcc(motornodeLeft, acceleration, deceleration, pos[0][0])
-    setPosAcc(motornodeRight, acceleration, deceleration, pos[0][1])
+            pos = polyModel.getMotorPos(pitch, roll)
+            if (pos[0][1] > 80):
+                pos[0][1] = 80
+            if (pos[0][1] < 1):
+                pos[0][1] = 1
+            if (pos[0][0] > 80):
+                pos[0][0] = 80
+            if (pos[0][0] < 1):
+                pos[0][0] = 1
+            #time.sleep(0.3)
+            setPosAcc(motornodeLeft, acceleration, deceleration, pos[0][0])
+            setPosAcc(motornodeRight, acceleration, deceleration, pos[0][1])
+            continue
+    socketMotor.close()
+    socketMotor = context.socket(zmq.REQ)
+    socketMotor.connect("tcp://localhost:12346")
 
-    # rpiVal = rpi.getPitchRoll()
-    # pitch = rpiVal[0]#float(input('pitch: '))
-    # roll = rpiVal[1]#float(input('roll: '))
-    # pos = polyModel.getMotorPos(pitch, roll)
-    # print("leftpos: {}, rightpos: {}".format(pos[0][0],pos[0][1]))
-    # if(pos[0][1] > 80):
-    #     pos[0][1] = 80
-    # if(pos[0][1] < 1):
-    #     pos[0][1] = 1
-    # if (pos[0][0] > 80):
-    #     pos[0][0] = 80
-    # if (pos[0][0] < 1):
-    #     pos[0][0] = 1
+    #time.sleep(0.2)
 
-    #setPosAcc(motornodeLeft,acceleration, deceleration, pos[0][0])
-    #setPosAcc(motornodeRight,acceleration, deceleration, pos[0][1])
+
+
 
 # shutdown
 setPosAcc(motornodeLeft,acceleration, deceleration, 80)
