@@ -231,8 +231,8 @@ initPDOs(motornodeLeft, motornodeRight)
 
 init(motornodeLeft, motornodeRight)
 
-#softwareEnable(motornodeLeft, motornodeRight)
-#findHome(motornodeLeft, motornodeRight)
+softwareEnable(motornodeLeft, motornodeRight)
+findHome(motornodeLeft, motornodeRight)
 #
 setSWLimits(0, 81)
 #

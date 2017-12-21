@@ -1,11 +1,9 @@
 import canopen
 import time
-import socket
 from RPiCom import RpiPitchRoll
 from motorModelPls import MotorPositionModel
 import numpy as np
 import pickle
-import struct
 import threading
 import zmq
 
@@ -16,8 +14,8 @@ network = canopen.Network()
 
 network.connect(bustype='ixxat', channel=1, bitrate=250000)
 #Left and right seen from the front of the platform.
-motornodeLeft = network.add_node(1, 'Eds/AKD CANopen.eds')
-motornodeRight = network.add_node(2, 'Eds/AKD CANopen.eds')
+motornodeLeft = network.add_node(1, 'C:\\Users\\patkar15\\Documents\\pythonrepository\\Eds\AKD CANopen.eds')
+motornodeRight = network.add_node(2, 'C:\\Users\\patkar15\\Documents\\pythonrepository\\Eds\\AKD CANopen.eds')
 rightJoystickStick = network.add_node(5, None)
 leftJoystickStick = network.add_node(6, None)
 rightJoystickButtons = network.add_node(7, None)
@@ -154,8 +152,10 @@ def findHome(nodeLeft, nodeRight):
     while ((latchStatusLeft != 1) or (latchStatusRight != 1)):
         latchStatusLeft = motornodeLeft.sdo['LatchStatus'].raw
         latchStatusLeft = latchStatusLeft >> 15
+        time.sleep(0.1)
         latchStatusRight = motornodeRight.sdo['LatchStatus'].raw
         latchStatusRight = latchStatusRight >> 15
+        time.sleep(0.1)
 
     print("Home is set, sleeping 1 sec")
     time.sleep(1)
@@ -191,7 +191,7 @@ def calibratePlatform(calibrateVal):
     dataSet = np.empty(shape=[0, 4])
     for i in range(calibrateVal):
         degreeLeft = i * (80 / calibrateVal)
-        setPosAcc(motornodeLeft, 350, 350, degreeLeft)
+        setPosAcc(motornodeLeft, 100, 100, degreeLeft)
         posReachedLeft = 0
         while((posReachedLeft == 0)):
             posReachedLeft = motornodeLeft.sdo['Statusword'].raw
@@ -199,7 +199,7 @@ def calibratePlatform(calibrateVal):
             print("posReachL: {}".format(posReachedLeft))
         for j in range(calibrateVal):
             degreeRight = 80 - j * (80 / calibrateVal)
-            setPosAcc(motornodeRight, 350, 350, degreeRight)
+            setPosAcc(motornodeRight, 100, 100, degreeRight)
             #read statusword bit 10 for position reached? for both motors
             ############################wait for ack from both motors before doing this below.#################################################################################
             posReachedRight = 0
@@ -212,26 +212,18 @@ def calibratePlatform(calibrateVal):
             dataSet = np.append(dataSet, [[degreeLeft, degreeRight, rPiCom.getPitchRoll()[0], rPiCom.getPitchRoll()[1]]], axis=0)
 
     rPiCom.closeSocket()
-    np.savetxt('values2.txt', dataSet)
+    np.savetxt('C:\\Users\\patkar15\\Documents\\pythonrepository\\values2.txt', dataSet)
     poly = MotorPositionModel(dataSet)
-    with open('PolyModel.pkl', 'wb') as output:
+    with open('C:\\Users\\patkar15\\Documents\\pythonrepository\\PolyModel.pkl', 'wb') as output:
         pickle.dump(poly, output, pickle.HIGHEST_PROTOCOL)
 
     return poly
-
-    # while (True):
-    #     pitch = float(input('pitch: '))
-    #     roll = float(input('roll: '))
-    #
-    #     left = polyModel.getLeftpos(pitch, roll)
-    #     right = polyModel.getRightpos(pitch, roll)
-    #     print("leftMotor: {}, rightMotor: {}".format(left, right))
 
 #if already calibrated, load the previous polymodel for the platform, otherwise calibrate again
 #The model is a function that calculates position on motors depending on pitch and roll as input
 def getModel():
     try:
-        with open('PolyModel.pkl', 'rb') as inp:
+        with open('C:\\Users\\patkar15\\Documents\\pythonrepository\\PolyModel.pkl', 'rb') as inp:
             polyM = pickle.load(inp)
             inp.flush()
             inp.close()
@@ -256,8 +248,8 @@ initPDOs(motornodeLeft, motornodeRight)
 print('initpdo done')
 init(motornodeLeft, motornodeRight)
 print('init done')
-#softwareEnable(motornodeLeft,motornodeRight)
-#findHome(motornodeLeft, motornodeRight)
+softwareEnable(motornodeLeft,motornodeRight)
+findHome(motornodeLeft, motornodeRight)
 print('findhome done')
 setSWLimits(0, 81)
 print('swlimits done')
@@ -328,8 +320,8 @@ network.send_message(0x388, 0, True);
 time.sleep(0.05);
 print("sent empty PDOs")
 #degrees/second^2
-acceleration = 50
-deceleration = 50
+acceleration = 70
+deceleration = 70
 
 class joyStickThread(threading.Thread):
     def __init__(self):
@@ -427,10 +419,10 @@ while(True):
             print(floatArr)
             pitch = floatArr[0]
             roll = floatArr[1] - 5
-            if(roll > 5):
-                roll = 5
-            if(roll < -5):
-                roll = -5
+            if(roll > 3):
+                roll = 3
+            if(roll < -3):
+                roll = -3
 
             pos = polyModel.getMotorPos(pitch, roll)
             if (pos[0][1] > 80):
