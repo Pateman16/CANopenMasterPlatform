@@ -418,7 +418,7 @@ while(True):
             floatArr = [float(dataSplit[0]), float(dataSplit[1]), float(dataSplit[2])]
             print(floatArr)
             pitch = floatArr[0]
-            roll = floatArr[1] - 5
+            roll = floatArr[1]
             if(roll > 3):
                 roll = 3
             if(roll < -3):

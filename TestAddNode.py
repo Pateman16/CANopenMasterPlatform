@@ -100,15 +100,15 @@ def print_joystick(id, dataByteArray, unknown):
     totString = "{},{},{},{}".format(rightxyString, leftxyString, rightButtonString, leftButtonString)
 
 
-f_out = open(r'\\.\pipe\NP', 'r+b', 0)
+#f_out = open(r'\\.\pipe\NP', 'r+b', 0)
 while(True):
     network.subscribe(0x185, print_joystick)
     network.subscribe(0x186, print_joystick)
     network.subscribe(0x387, print_joystick)
     network.subscribe(0x388, print_joystick)
     if (rightxyString and rightButtonString and leftxyString and leftButtonString):
-        f_out.write(struct.pack('I', len(totString)))
-        f_out.write(totString.encode('utf-8'))
+        #f_out.write(struct.pack('I', len(totString)))
+        #f_out.write(totString.encode('utf-8'))
         # pitchRoll = rightxyString.split(',')
         # print(pitchRoll)
         # pitch = float(pitchRoll[1])

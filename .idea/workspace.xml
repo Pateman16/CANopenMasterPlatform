@@ -2,14 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3a56741d-7dc8-40dd-9a88-2c9e550d38c8" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/LeftMotor.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/OldNode.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ServerClientUnityCom.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ServoMotors.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestBothCAN.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/hejhehjeh.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/hejhiejghoerjhg.py" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/OldPolyModel.pkl" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/PolyModel.pkl" afterPath="$PROJECT_DIR$/PolyModel.pkl" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TestAddNode.py" afterPath="$PROJECT_DIR$/TestAddNode.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TestMotor.py" afterPath="$PROJECT_DIR$/TestMotor.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/canOpenBUS.py" afterPath="$PROJECT_DIR$/canOpenBUS.py" />
     </list>
@@ -25,11 +21,10 @@
       <file leaf-file-name="canOpenBUS.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/canOpenBUS.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="184">
-              <caret line="251" column="0" lean-forward="false" selection-start-line="251" selection-start-column="0" selection-end-line="251" selection-end-column="0" />
+            <state relative-caret-position="429">
+              <caret line="250" column="0" lean-forward="false" selection-start-line="250" selection-start-column="0" selection-end-line="250" selection-end-column="0" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
-                <element signature="e#1082#3260#0" expanded="false" />
                 <element signature="e#3451#4591#0" expanded="false" />
                 <element signature="e#4655#4955#0" expanded="false" />
                 <element signature="e#5677#6376#0" expanded="false" />
@@ -49,15 +44,53 @@
       <file leaf-file-name="TestMotor.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TestMotor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2604">
-              <caret line="41" column="38" lean-forward="true" selection-start-line="41" selection-start-column="38" selection-end-line="41" selection-end-column="38" />
+            <state relative-caret-position="85">
+              <caret line="323" column="0" lean-forward="false" selection-start-line="323" selection-start-column="0" selection-end-line="348" selection-end-column="63" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
-                <element signature="e#3873#4173#0" expanded="false" />
-                <element signature="e#4837#5248#0" expanded="false" />
-                <element signature="e#6068#8103#0" expanded="false" />
-                <element signature="e#8318#8552#0" expanded="false" />
+                <element signature="e#648#3684#0" expanded="false" />
+                <element signature="e#5279#5676#0" expanded="false" />
+                <element signature="e#5780#6372#0" expanded="false" />
+                <element signature="e#7734#9769#0" expanded="false" />
+                <element signature="e#9984#10218#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="testNodeTop.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/testNodeTop.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="371">
+              <caret line="131" column="0" lean-forward="false" selection-start-line="131" selection-start-column="0" selection-end-line="131" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#14#0" expanded="true" />
+                <element signature="e#453#1790#0" expanded="false" />
+                <element signature="e#1820#2404#0" expanded="false" />
+                <element signature="e#2456#2650#0" expanded="false" />
+                <element signature="e#2680#2973#0" expanded="false" />
+                <element signature="e#3104#3801#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="sdo.py" pinned="false" current-in-tab="false">
+        <entry file="file://C:/Program Files/Python36/Lib/site-packages/canopen/sdo.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1598">
+              <caret line="99" column="0" lean-forward="false" selection-start-line="99" selection-start-column="0" selection-end-line="99" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pdo.py" pinned="false" current-in-tab="false">
+        <entry file="file://C:/Program Files/Python36/Lib/site-packages/canopen/pdo.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="935">
+              <caret line="66" column="0" lean-forward="false" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -85,7 +118,7 @@
       <file leaf-file-name="AKD CANopen.eds" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Eds/AKD CANopen.eds">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="224">
+            <state relative-caret-position="141882">
               <caret line="8346" column="25" lean-forward="false" selection-start-line="8346" selection-start-column="14" selection-end-line="8346" selection-end-column="25" />
               <folding />
             </state>
@@ -95,7 +128,7 @@
       <file leaf-file-name="test.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
+            <state relative-caret-position="221">
               <caret line="16" column="56" lean-forward="false" selection-start-line="16" selection-start-column="56" selection-end-line="16" selection-end-column="56" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
@@ -107,8 +140,8 @@
       <file leaf-file-name="TestAddNode.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TestAddNode.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="477">
-              <caret line="105" column="44" lean-forward="true" selection-start-line="105" selection-start-column="44" selection-end-line="105" selection-end-column="44" />
+            <state relative-caret-position="1836">
+              <caret line="110" column="9" lean-forward="false" selection-start-line="110" selection-start-column="9" selection-end-line="110" selection-end-column="9" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -191,20 +224,22 @@
         <option value="$PROJECT_DIR$/LeftMotor.py" />
         <option value="$PROJECT_DIR$/Eds/joystick.eds" />
         <option value="$PROJECT_DIR$/Joystick test.py" />
-        <option value="$PROJECT_DIR$/TestAddNode.py" />
         <option value="$PROJECT_DIR$/hejhiejghoerjhg.py" />
         <option value="$PROJECT_DIR$/TestBothCAN.py" />
         <option value="$PROJECT_DIR$/ServerClientUnityCom.py" />
-        <option value="$PROJECT_DIR$/TestMotor.py" />
         <option value="$PROJECT_DIR$/homeTest.py" />
+        <option value="$PROJECT_DIR$/TestAddNode.py" />
+        <option value="$PROJECT_DIR$/TestMotor.py" />
+        <option value="$PROJECT_DIR$/testNodeTop.py" />
         <option value="$PROJECT_DIR$/canOpenBUS.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="953" />
-    <option name="width" value="974" />
-    <option name="height" value="1167" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="1936" />
+    <option name="height" value="1176" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -222,6 +257,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -268,8 +305,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -277,6 +312,9 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\patkar15\Documents\pythonrepository" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\patri\PycharmProjects\CanOpen\Eds" />
     </key>
@@ -293,8 +331,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.TestMotor">
-    <configuration name="ServerClientUnityCom" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.canOpenBUS">
+    <configuration name="TestAddNode" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -306,24 +344,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="CanOpen" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ServerClientUnityCom.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
-    <configuration name="TestBothCAN" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="CanOpen" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TestBothCAN.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TestAddNode.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -379,20 +400,37 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
+    <configuration name="testNodeTop" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="CanOpen" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/testNodeTop.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Python.canOpenBUS" />
-      <item index="1" class="java.lang.String" itemvalue="Python.TestBothCAN" />
-      <item index="2" class="java.lang.String" itemvalue="Python.ServerClientUnityCom" />
-      <item index="3" class="java.lang.String" itemvalue="Python.TestMotor" />
-      <item index="4" class="java.lang.String" itemvalue="Python.homeTest" />
+      <item index="1" class="java.lang.String" itemvalue="Python.TestMotor" />
+      <item index="2" class="java.lang.String" itemvalue="Python.homeTest" />
+      <item index="3" class="java.lang.String" itemvalue="Python.TestAddNode" />
+      <item index="4" class="java.lang.String" itemvalue="Python.testNodeTop" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.TestMotor" />
-        <item index="1" class="java.lang.String" itemvalue="Python.homeTest" />
-        <item index="2" class="java.lang.String" itemvalue="Python.canOpenBUS" />
-        <item index="3" class="java.lang.String" itemvalue="Python.ServerClientUnityCom" />
-        <item index="4" class="java.lang.String" itemvalue="Python.TestBothCAN" />
+        <item index="0" class="java.lang.String" itemvalue="Python.canOpenBUS" />
+        <item index="1" class="java.lang.String" itemvalue="Python.testNodeTop" />
+        <item index="2" class="java.lang.String" itemvalue="Python.TestMotor" />
+        <item index="3" class="java.lang.String" itemvalue="Python.TestAddNode" />
+        <item index="4" class="java.lang.String" itemvalue="Python.homeTest" />
       </list>
     </recent_temporary>
   </component>
@@ -416,10 +454,10 @@
     <frame x="-8" y="-8" width="1936" height="1176" extended-state="7" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1640625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14583333" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36491558" sideWeight="0.51666665" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36491558" sideWeight="0.48333332" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36491558" sideWeight="0.525" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36491558" sideWeight="0.475" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -468,25 +506,11 @@
           <option name="timeStamp" value="14" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="24" />
+      <option name="time" value="27" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/TestAddNode.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestAddNode.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TestAddNode.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -541,13 +565,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ServoMotors.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3281">
-          <caret line="262" column="22" lean-forward="false" selection-start-line="262" selection-start-column="22" selection-end-line="262" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/ServoMotors.py" />
     <entry file="file://$PROJECT_DIR$/values2.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -562,13 +580,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/Program Files/Python36/Lib/site-packages/canopen/sdo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1598">
-          <caret line="99" column="0" lean-forward="false" selection-start-line="99" selection-start-column="0" selection-end-line="99" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/PycharmProjects/canOpenPython/TestAddNode.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="345">
@@ -580,7 +591,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="192">
           <caret line="852" column="8" lean-forward="false" selection-start-line="852" selection-start-column="8" selection-end-line="852" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -606,69 +616,25 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="561">
           <caret line="39" column="8" lean-forward="false" selection-start-line="39" selection-start-column="8" selection-end-line="39" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hejhiejghoerjhg.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1139">
-          <caret line="91" column="21" lean-forward="false" selection-start-line="91" selection-start-column="21" selection-end-line="91" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestBothCAN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2210">
-          <caret line="293" column="4" lean-forward="false" selection-start-line="293" selection-start-column="6" selection-end-line="296" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LeftMotor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="8" column="42" lean-forward="false" selection-start-line="8" selection-start-column="42" selection-end-line="8" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/hejhehjeh.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ServerClientUnityCom.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-530">
-          <caret line="297" column="4" lean-forward="false" selection-start-line="297" selection-start-column="4" selection-end-line="297" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/OldNode.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="629">
-          <caret line="38" column="42" lean-forward="false" selection-start-line="38" selection-start-column="42" selection-end-line="38" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/hejhiejghoerjhg.py" />
+    <entry file="file://$PROJECT_DIR$/TestBothCAN.py" />
+    <entry file="file://$PROJECT_DIR$/LeftMotor.py" />
+    <entry file="file://$PROJECT_DIR$/hejhehjeh.py" />
+    <entry file="file://$PROJECT_DIR$/ServerClientUnityCom.py" />
+    <entry file="file://$PROJECT_DIR$/OldNode.py" />
     <entry file="file://$PROJECT_DIR$/motorModelClass.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
           <caret line="9" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Eds/AKD CANopen.eds">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
+        <state relative-caret-position="141882">
           <caret line="8346" column="25" lean-forward="false" selection-start-line="8346" selection-start-column="14" selection-end-line="8346" selection-end-column="25" />
           <folding />
         </state>
@@ -690,19 +656,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TestAddNode.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="477">
-          <caret line="105" column="44" lean-forward="true" selection-start-line="105" selection-start-column="44" selection-end-line="105" selection-end-column="44" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
+        <state relative-caret-position="221">
           <caret line="16" column="56" lean-forward="false" selection-start-line="16" selection-start-column="56" selection-end-line="16" selection-end-column="56" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
@@ -710,35 +666,69 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TestMotor.py">
+    <entry file="file://$PROJECT_DIR$/homeTest.py" />
+    <entry file="file://$PROJECT_DIR$/TestAddNode.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2604">
-          <caret line="41" column="38" lean-forward="true" selection-start-line="41" selection-start-column="38" selection-end-line="41" selection-end-column="38" />
+        <state relative-caret-position="1836">
+          <caret line="110" column="9" lean-forward="false" selection-start-line="110" selection-start-column="9" selection-end-line="110" selection-end-column="9" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
-            <element signature="e#3873#4173#0" expanded="false" />
-            <element signature="e#4837#5248#0" expanded="false" />
-            <element signature="e#6068#8103#0" expanded="false" />
-            <element signature="e#8318#8552#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/homeTest.py">
+    <entry file="file://C:/Program Files/Python36/Lib/site-packages/canopen/pdo.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-377">
-          <caret line="18" column="19" lean-forward="false" selection-start-line="18" selection-start-column="19" selection-end-line="18" selection-end-column="19" />
+        <state relative-caret-position="935">
+          <caret line="66" column="0" lean-forward="false" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files/Python36/Lib/site-packages/canopen/sdo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1598">
+          <caret line="99" column="0" lean-forward="false" selection-start-line="99" selection-start-column="0" selection-end-line="99" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestMotor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="323" column="0" lean-forward="false" selection-start-line="323" selection-start-column="0" selection-end-line="348" selection-end-column="63" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+            <element signature="e#648#3684#0" expanded="false" />
+            <element signature="e#5279#5676#0" expanded="false" />
+            <element signature="e#5780#6372#0" expanded="false" />
+            <element signature="e#7734#9769#0" expanded="false" />
+            <element signature="e#9984#10218#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/testNodeTop.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="371">
+          <caret line="131" column="0" lean-forward="false" selection-start-line="131" selection-start-column="0" selection-end-line="131" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+            <element signature="e#453#1790#0" expanded="false" />
+            <element signature="e#1820#2404#0" expanded="false" />
+            <element signature="e#2456#2650#0" expanded="false" />
+            <element signature="e#2680#2973#0" expanded="false" />
+            <element signature="e#3104#3801#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/canOpenBUS.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="184">
-          <caret line="251" column="0" lean-forward="false" selection-start-line="251" selection-start-column="0" selection-end-line="251" selection-end-column="0" />
+        <state relative-caret-position="429">
+          <caret line="250" column="0" lean-forward="false" selection-start-line="250" selection-start-column="0" selection-end-line="250" selection-end-column="0" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
-            <element signature="e#1082#3260#0" expanded="false" />
             <element signature="e#3451#4591#0" expanded="false" />
             <element signature="e#4655#4955#0" expanded="false" />
             <element signature="e#5677#6376#0" expanded="false" />
